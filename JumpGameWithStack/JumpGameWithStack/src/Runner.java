@@ -3,14 +3,15 @@
 import java.util.Scanner;
 
 public class Runner {
-    private Stack tower;
+    private Stack guessTower;
+    private Stack actualTower;
     private Scanner keyboard = new Scanner(System.in);
     private int inputNum;
     private int guessNum;
 
     public void start()
     {
-        tower = new Stack(-1);
+        guessTower = new Stack(-1);
         // for(int i=0; i<10; i++)
         //     tower.push('0');
         // tower.printTower();
@@ -61,7 +62,16 @@ public class Runner {
             {
                 System.out.println("Bad data entered. Enter a numerical integer.");
             }
+            if(inputNum <= 0)
+            {
+                System.out.println("Bad data entered. Size must be greater than zero.");
+                inputted = false;
+            }
         }
+        actualTower = new Stack(inputNum);
+        char temp = '0';
+        for(int i=0; i<inputNum; i++)
+            actualTower.push(++temp);
         System.out.println("Data entered. Wiping the screen for Player Two.");
 
         // clear screen
@@ -83,9 +93,9 @@ public class Runner {
             if(in.equalsIgnoreCase("y")||in.contains("y"))
             {
                 guessNum++;
-                tower.push(++charInput);
+                guessTower.push(++charInput);
                 System.out.println("The growing tower: ");
-                tower.printTower();
+                guessTower.printTower();
             }
             else
             {
@@ -110,10 +120,13 @@ public class Runner {
 
     private void oneWins()
     {
-        System.out.println("Player One wins!");
-
         // pop stack sequence
-        tower.emptyStack();
+        System.out.println("PLAYER TWO STACK REVEAL:");
+        guessTower.emptyStack();
+        System.out.println("PLAYER ONE STACK REVEAL: ");
+        actualTower.emptyStack();
+
+        System.out.println("------------Player One wins!--------");
     }
 
     private void twoWins()
