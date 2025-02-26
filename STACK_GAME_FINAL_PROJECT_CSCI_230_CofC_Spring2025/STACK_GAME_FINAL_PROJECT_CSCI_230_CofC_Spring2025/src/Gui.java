@@ -8,44 +8,63 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
+// provides user interface functionality of when to add/remove JPanels, etc; also for pushing/popping stack
 public class Gui implements ActionListener
 {
-    private JButton start;
     private JFrame frame;
-    private JPanel startScreen;
+    
+    private JButton start; 
+
     private JRadioButton yes;
     private JRadioButton no;
 
+    private ButtonGroup yesNo;
+
+    private JPanel startScreen;
+    private JPanel guessScreen;
+
+    private JLabel prompt;
+    private JLabel continueTower;
+
+    // private JPanel towerPanel; 
+
     private StackArray<Block> stackTower;
 
-    public Gui() // creates GUI initially
+    // creates GUI initially, sets up JFrame
+    public Gui() 
     {
+        // declarations
         frame = new JFrame();
+        startScreen = new JPanel();
+        guessScreen = new JPanel();
+
+        // frame set up
         frame.setTitle("Start Screen");
-        frame.setSize(900, 900);
+        frame.setSize(900, 900); //--------> manually set size, easier for placing boxes on x/y coordinates
+        getStartPanel(); // calls method below to get start panel
+        showStartScreen();
 
-        getStartPanel();
-
-        // frame.pack();                         // if this is taken out, must put back in set size
+        // frame.pack();            //---------> predetermined size by system
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     private void getStartPanel() // start Screen JPanel
     {
-        startScreen = new JPanel();
+        // ---------- set up startScreen --------------
         startScreen.setLayout(new BoxLayout(startScreen, BoxLayout.Y_AXIS)); // to make stuff align vertically
         startScreen.setBackground(Color.BLACK);
-
         //startScreen.add(Box.createVerticalGlue());        //-------> in case tries to get uncentered
-
+        
+        // welcome message
         JLabel welcome = new JLabel("Welcome to Stack Jenga Horror Game!"); // this text can definitely be edited
         welcome.setForeground(Color.RED); // so can any colors used, these are just filler for now
         welcome.setAlignmentX(Component.CENTER_ALIGNMENT); // Center horizontally
-
         startScreen.add(welcome);
 
-        startScreen.add(Box.createVerticalStrut(30)); // Add vertical space
+        // Add vertical space
+        startScreen.add(Box.createVerticalStrut(30)); 
 
+        // start button
         start = new JButton("START");
         start.setPreferredSize(new Dimension(1200, 500));
         start.setBackground(Color.RED);
@@ -54,83 +73,147 @@ public class Gui implements ActionListener
         startScreen.add(start);
 
         //startScreen.add(Box.createVerticalGlue());    //---> in case tries to get uncentered
+    }
+
+    private void showStartScreen()
+    {
+        frame.getContentPane().removeAll();
         frame.add(startScreen);
         frame.setVisible(true);
     }
 
-    private void getGuessPanel() // for when user is stacking the tower
+    // gets random stack size
+    private void getStackSize()
     {
-        JPanel guess = new JPanel();
-        guess.setBackground(Color.WHITE);
-        startScreen.setLayout(new BoxLayout(startScreen, BoxLayout.Y_AXIS)); // to make stuff align vertically
-
+        // --------------- RANDOMLY DETERMINED SIZE OF STACK -----------------------------------------
         //-----------*********will need tweaking to improve*******--------------------
         int min = 5; // definitely needs adjustment
         int max = 10; // also needs adjustment
         int rangeRandom = min + (int)(Math.random() * ((max - min) + 1));
         int stackSize = rangeRandom;
         stackTower = new StackArray<Block>(stackSize);
+    }
 
-        JLabel prompt = new JLabel("A random number has been assigned to you. Build the tower to the number.");
+    // sets up GuessScreen JPanel 
+    private void getGuessPanel() // for when user is stacking the tower
+    {
+        //----------set up guess panel--------------------
+        guessScreen.setBackground(Color.BLACK);
+        startScreen.setLayout(new BoxLayout(startScreen, BoxLayout.Y_AXIS)); // to make stuff align vertically
+
+        // user directions
+        prompt = new JLabel("A random number has been assigned to you. Build the tower to the number.");
+        prompt.setForeground(Color.RED);
         prompt.setAlignmentX(Component.CENTER_ALIGNMENT); // Center horizontally
-        guess.add(prompt);
+        guessScreen.add(prompt);
 
-        guess.add(Box.createVerticalStrut(30)); // Add vertical space
+        // Add vertical space
+        guessScreen.add(Box.createVerticalStrut(30)); 
 
-        JLabel continueTower = new JLabel("\nDo you want to keep building the tower?"); // will fix dialogue with int i + for loop later
+        //******************************************************************************************************** */
+        // ***** user prompt to keep building, HAVE HAD ISSUES GETTING BELOW PROMPT JLABEL ************* 
+        continueTower = new JLabel("\nDo you want to keep building the tower?"); // will fix dialogue with int i + for loop later
+        continueTower.setForeground(Color.WHITE);
         continueTower.setAlignmentX(Component.CENTER_ALIGNMENT); // Center horizontally --> THIS NEEDS TO BE FIXED
-        guess.add(continueTower);
+        guessScreen.add(continueTower);
+        //******************************************************************************************************** */
 
-        guess.add(Box.createVerticalStrut(30)); // Add vertical space
+        // Add vertical space
+        guessScreen.add(Box.createVerticalStrut(30)); 
 
+        // yes option
         yes = new JRadioButton("Yes! Keep Going");
-        yes.addActionListener(this);
-        guess.add(yes);
+        yes.addActionListener(this); // adds action listener to get user input 
+        guessScreen.add(yes); // *****    SEE END OF CODE FOR ACTION LISTENER METHOD   **********
 
+        // no option
         no = new JRadioButton("No. Stop.");
         no.addActionListener(this);
-        guess.add(no);
+        guessScreen.add(no);
 
-        ButtonGroup yesNo = new ButtonGroup();
+        // grouping yes/no buttons
+        yesNo = new ButtonGroup();
         yesNo.add(yes);
         yesNo.add(no);
 
-        guess.add(yes);
-        guess.add(no);
-
-        JLabel selectionLabel = new JLabel("Selected: ");
-        guess.add(selectionLabel);
-
-        frame.setVisible(false);
-        frame.remove(startScreen);
-        frame.add(guess);
-
-        // frame.pack();
-        frame.setVisible(true);
+        guessScreen.add(yes);
+        guessScreen.add(no);
     }
 
-    public void yesAction()
+    private void showGuessScreen()
     {
-        Block newBlock = new Block(1, "filler");
-        stackTower.push(newBlock);
+        // updating screen w/o glitching
+        frame.getContentPane().removeAll();;
+        frame.add(guessScreen);
+        frame.revalidate();
+    }
 
-        // System.out.println("YES SELECTED");                              // >> works
+    // action listener calls if user chooses yes
+    public void yesAction() throws InterruptedException
+    {
+        Block newBlock = new Block(1, "block"); // temp block to put in stack
+        if(!stackTower.isFull())
+            stackTower.push(newBlock); // stack tower is the stack
+        else
+        {
+            System.out.println("Stack full...."); // error check
+            userLoses();
+        }
+        //********************************************************************************************************* */
+        // switches to tower screen ***** TOWERBLOCK CLASS NEEDS TO INCREASE HEIGHT OVER TIME *********
+        //***************************************************************************************************** */
+        TowerBlock t = new TowerBlock();
+        t.go(frame);
+
+        //***************************************************************************************************** */
+        // Thread.sleep(1000); // to put in delay to show tower screen --> CAUSES TOWER TO NOT SHOW RIGHT NOW
+        // showGuessScreen();
+        //********************************************************************************************************* */
     }
 
     public void noAction()
     {
+        if(!stackTower.isFull())
+        {
+           System.out.println("User guessed less than stack size."); // error checking
+           userLoses();
+        }
+        else if(stackTower.isFull())
+        {
+            System.out.println("User guessed correct stack size."); // error checking
+            userWins();
+        }
+    }
 
+    public void userLoses()
+    {
+        System.out.println("User loses!!!!");
+        System.exit(0); // maybe should make replay later on 
+    }
 
-        // System.out.println("NO SELECTED");                               // >> works
+    public void userWins()
+    {
+        System.out.println("User wins!!!");
+        System.exit(0);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) // for making buttons do things
     {
         if(e.getSource() == start) // start screen start button
+        {
+            getStackSize();
             getGuessPanel();
-        else if(e.getSource() == yes) // game screen radio button to keep building tower
-            yesAction();
+            showGuessScreen();
+        }
+        else if(e.getSource() == yes)
+        {
+            try {
+                yesAction();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
         else if(e.getSource() == no) // game screen radio button to stop building tower
             noAction();
     }

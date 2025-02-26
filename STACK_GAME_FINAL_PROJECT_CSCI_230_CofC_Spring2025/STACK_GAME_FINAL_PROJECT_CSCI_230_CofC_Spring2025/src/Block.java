@@ -2,6 +2,7 @@
 // CSCI 230 Spring 2025
 // College of Charleston 
 
+//-------------Class to represent each block in tower in the stack
 public class Block 
 {
     private int val; // maybe could have a rotation of 3-5 associated with each block, whichever is
@@ -34,6 +35,7 @@ public class Block
         return data;
     }
 
+    // tester for if stack worked
     public String toString()
     {
         return "ID: " + val + " DATA: " + data;
